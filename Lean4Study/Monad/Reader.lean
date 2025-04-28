@@ -1,3 +1,5 @@
+import Lean4Study.Monad.Laws
+
 structure Reader (ρ : Type) (α : Type) where
   run : ρ -> α
 
@@ -55,3 +57,12 @@ section ProofMonadLaws
     rfl
 
 end ProofMonadLaws
+
+section ProofMonadLaws2
+
+  instance : Laws.MonadLaws (Reader ρ) where
+    left_identity _ _ := rfl
+    right_identity _ := rfl
+    associativity _ _ _ := rfl
+
+end ProofMonadLaws2
