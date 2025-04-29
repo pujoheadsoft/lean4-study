@@ -1,18 +1,5 @@
 import Mathlib.Algebra.Group.Defs
 
-class HasIdentityElement (α : Type) where
-  identityElement : α
-
-structure Difference (α : Type) where
-  getDifference : α
-
--- 二項演算だけできる(Semigroupだと色々則を満たす必要があり、ぶっ壊す上で邪魔なので)
-instance : Mul (Difference Int) where
-  mul a b := ⟨a.getDifference + b.getDifference⟩
-
-instance : HasIdentityElement (Difference Int) where
-  identityElement := ⟨0⟩
-
 -- Writerモナドの型定義
 structure Writer (ω : Type) (α : Type) where
   runWriter : α × ω
