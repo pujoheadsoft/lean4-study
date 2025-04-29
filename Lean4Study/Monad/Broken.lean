@@ -3,9 +3,6 @@ import Mathlib.Algebra.Group.Defs
 class HasIdentityElement (α : Type) where
   identityElement : α
 
-structure Writer (ω : Type) [Monoid ω] (α : Type) where
-  runWriter : α × ω
-
 structure Difference (α : Type) where
   getDifference : α
 
@@ -16,50 +13,33 @@ instance : Mul (Difference Int) where
 instance : HasIdentityElement (Difference Int) where
   identityElement := ⟨0⟩
 
--- section Ex1
-
---   variable {ω : Type} [Mul ω] [HasIdentityElement ω]
-
---   instance : Monad (Writer ω) where
---     pure a := ⟨(a, HasIdentityElement.identityElement)⟩
-
---     bind m f := ⟨
---       let (a, w1) := m.runWriter
---       let (b, w2) := (f a).runWriter
---       (b, Mul.mul w1 w2)
---     ⟩
-
--- end Ex1
-
-section Ex2
-
-  variable {ω : Type} [Monoid ω]
-
-  instance : Monad (Writer ω) where
-    pure a := ⟨(a, One.one)⟩
-
-    bind m f := ⟨
-      let (a, w1) := m.runWriter
-      let (b, w2) := (f a).runWriter
-      (b, w1 * w2)
-    ⟩
-
-  -- theorem left_identity (a : α) (k : α -> Writer ω β) :
-  --   (pure a >>= k) = k a := by
-  --   _p1
-
-  -- theorem right_identity (m : Writer ω α) :
-  --   (m >>= pure) = m := by
-  --   rfl
-
-  -- theorem associativity (m : Writer ω α) (k : α -> Writer ω β) (h : β -> Writer ω γ) :
-  --   ((m >>= k) >>= h) = (m >>= λa => k a >>= h) := by
-  --   rfl
-
-end Ex2
+-- Writerモナドの型定義
+structure Writer (ω : Type) (α : Type) where
+  runWriter : α × ω
 
 section ProofMonadLaws
 
+variable [Monoid ω]
 
+instance [Monoid ω] : Monad (Writer ω) where
+  pure a := ⟨(a, 1)⟩
+
+  bind m f := ⟨
+    let (a, w₁) := m.runWriter
+    let (b, w₂) := (f a).runWriter
+    (b, w₁ * w₂)
+  ⟩
+
+theorem left_identity (a : α) (k : α -> Writer ω β) :
+  (pure a >>= k) = k a := by
+  simp [pure, bind, mul_one] -- pure,bind,左単位則
+
+theorem right_identity (m : Writer ω α) :
+  (m >>= pure) = m := by
+  simp [pure, bind, one_mul] -- pure,bind,右単位則
+
+theorem associativity (m : Writer ω α) (k : α -> Writer ω β) (h : β -> Writer ω γ) :
+  ((m >>= k) >>= h) = (m >>= (fun a => k a >>= h)) := by
+  simp [pure, bind, mul_assoc] -- pure,bind,結合則
 
 end ProofMonadLaws
